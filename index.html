@@ -66,6 +66,13 @@
             letter-spacing: -2px;
         }
 
+        .ampm {
+            font-size: 1.1rem;
+            color: var(--text-dim);
+            margin-top: 5px;
+            font-weight: 300;
+        }
+
         /* الجزء السفلي: التواريخ */
         .date-section {
             border-top: 1px solid rgba(255, 255, 255, 0.1);
@@ -87,7 +94,7 @@
             font-weight: 300;
         }
         
-        /* تذييل بسيط */
+        /* تذييل */
         .footer {
             position: absolute;
             bottom: 30px;
@@ -96,7 +103,6 @@
             letter-spacing: 1px;
         }
 
-        /* استجابة الشاشات الصغيرة جداً */
         @media (max-width: 350px) {
             .time { font-size: 3rem; }
             .day-ar { font-size: 1.5rem; }
@@ -112,6 +118,7 @@
         
         <div class="time-section">
             <div class="time" id="time">00:00:00</div>
+            <div class="ampm" id="ampm"></div>
         </div>
         
         <div class="date-section">
@@ -134,16 +141,19 @@
             const now = new Date();
             const options = { timeZone: 'Asia/Riyadh' };
             
+            // اليوم
             const dayIndex = now.getDay();
             document.getElementById('dayAr').textContent = daysAr[dayIndex];
             document.getElementById('dayEn').textContent = daysEn[dayIndex];
             
+            // التاريخ الميلادي (يوم/شهر/سنة بالأرقام)
             const year = now.toLocaleString('en-US', { ...options, year: 'numeric' });
-            let month = now.toLocaleString('en-US', { ...options, month: 'numeric' });
-            let day = now.toLocaleString('en-US', { ...options, day: 'numeric' });
+            const month = pad(now.toLocaleString('en-US', { ...options, month: 'numeric' }));
+            const day = pad(now.toLocaleString('en-US', { ...options, day: 'numeric' }));
             
             document.getElementById('dateMiladi').textContent = `${year}/${month}/${day}`;
             
+            // التاريخ الهجري (بالأرقام فقط)
             try {
                 const hijriFormatter = new Intl.DateTimeFormat('ar-SA-u-ca-islamic', {
                     timeZone: 'Asia/Riyadh',
@@ -163,14 +173,25 @@
                 
                 document.getElementById('dateHijri').textContent = `${hDay} / ${hMonth} / ${hYear} هـ`;
             } catch(e) {
-                document.getElementById('dateHijri').textContent = `---`;
+                document.getElementById('dateHijri').textContent = `--- / --- / --- هـ`;
             }
             
-            const hours = pad(now.toLocaleString('en-US', { ...options, hour: 'numeric', hour12: false }));
+            // الساعة بنظام 12 ساعة
+            let hours = now.toLocaleString('en-US', { ...options, hour: 'numeric', hour12: true });
             const minutes = pad(now.toLocaleString('en-US', { ...options, minute: 'numeric' }));
             const seconds = pad(now.toLocaleString('en-US', { ...options, second: 'numeric' }));
             
-            document.getElementById('time').textContent = `${hours}:${minutes}:${seconds}`;
+            // فصل AM/PM عن الساعة
+            const ampmMatch = hours.match(/(\d+)\s*(AM|PM)/i);
+            if (ampmMatch) {
+                hours = pad(ampmMatch[1]);           // الساعة فقط (مثال: 09)
+                const ampm = ampmMatch[2];           // AM أو PM
+                document.getElementById('time').textContent = `${hours}:${minutes}:${seconds}`;
+                document.getElementById('ampm').textContent = ampm;
+            } else {
+                // حالة احتياطية
+                document.getElementById('time').textContent = `${hours}:${minutes}:${seconds}`;
+            }
         }
         
         setInterval(updateClock, 1000);
