@@ -6,7 +6,7 @@
     <title>الساعة والتاريخ - تصميم هادئ</title>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+Arabic:wght@300;400;600&family=JetBrains+Mono:wght@400&display=swap');
-        
+
         :root {
             --bg-color: #0a0a0a;
             --text-main: #ffffff;
@@ -26,7 +26,7 @@
             font-family: 'Noto Sans Arabic', system-ui, sans-serif;
             overflow: hidden;
         }
-        
+
         .container {
             text-align: center;
             width: 100%;
@@ -34,17 +34,17 @@
             padding: 20px;
         }
 
-        /* الجزء العلوي: اليوم */
+        /* اليوم */
         .day-section {
             margin-bottom: 25px;
         }
-        
+
         .day-ar {
             font-size: 1.8rem;
             font-weight: 600;
             display: block;
         }
-        
+
         .day-en {
             font-size: 0.9rem;
             color: var(--text-dim);
@@ -54,7 +54,7 @@
             display: block;
         }
 
-        /* الجزء الأوسط: الساعة */
+        /* الساعة */
         .time-section {
             margin-bottom: 25px;
         }
@@ -73,7 +73,7 @@
             font-weight: 300;
         }
 
-        /* الجزء السفلي: التواريخ */
+        /* التواريخ */
         .date-section {
             border-top: 1px solid rgba(255, 255, 255, 0.1);
             padding-top: 20px;
@@ -81,19 +81,19 @@
             flex-direction: column;
             gap: 8px;
         }
-        
+
         .date-miladi {
             font-size: 1.4rem;
             font-family: 'JetBrains Mono', monospace;
             color: var(--text-main);
         }
-        
+
         .date-hijri {
             font-size: 1.2rem;
             color: var(--text-dim);
             font-weight: 300;
         }
-        
+
         /* تذييل */
         .footer {
             position: absolute;
@@ -115,87 +115,102 @@
             <span class="day-ar" id="dayAr"></span>
             <span class="day-en" id="dayEn"></span>
         </div>
-        
+
         <div class="time-section">
             <div class="time" id="time">00:00:00</div>
             <div class="ampm" id="ampm"></div>
         </div>
-        
+
         <div class="date-section">
             <div class="date-miladi" id="dateMiladi"></div>
             <div class="date-hijri" id="dateHijri"></div>
         </div>
     </div>
-    
+
     <div class="footer">RIYADH, KSA</div>
 
     <script>
         const daysAr = ["الأحد", "الإثنين", "الثلاثاء", "الأربعاء", "الخميس", "الجمعة", "السبت"];
         const daysEn = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
-        
+
         function pad(num) {
             return num < 10 ? '0' + num : num;
         }
-        
+
         function updateClock() {
             const now = new Date();
             const options = { timeZone: 'Asia/Riyadh' };
-            
+
             // اليوم
             const dayIndex = now.getDay();
             document.getElementById('dayAr').textContent = daysAr[dayIndex];
             document.getElementById('dayEn').textContent = daysEn[dayIndex];
-            
-            // التاريخ الميلادي (يوم/شهر/سنة بالأرقام)
+
+            // التاريخ الميلادي
             const year = now.toLocaleString('en-US', { ...options, year: 'numeric' });
             const month = pad(now.toLocaleString('en-US', { ...options, month: 'numeric' }));
             const day = pad(now.toLocaleString('en-US', { ...options, day: 'numeric' }));
-            
+
             document.getElementById('dateMiladi').textContent = `${year}/${month}/${day}`;
-            
-            // التاريخ الهجري (بالأرقام فقط)
+
+            // التاريخ الهجري - الحل المُحسّن والمستقر
             try {
-                const hijriFormatter = new Intl.DateTimeFormat('ar-SA-u-ca-islamic', {
+                const hijriFormatter = new Intl.DateTimeFormat('ar-SA-u-ca-islamic-umalqura-nu-latn', {
                     timeZone: 'Asia/Riyadh',
                     year: 'numeric',
-                    month: 'numeric',
-                    day: 'numeric'
+                    month: '2-digit',
+                    day: '2-digit'
                 });
-                
+
                 const hijriParts = hijriFormatter.formatToParts(now);
                 let hDay = '', hMonth = '', hYear = '';
-                
+
                 hijriParts.forEach(part => {
                     if (part.type === 'day') hDay = part.value;
                     if (part.type === 'month') hMonth = part.value;
                     if (part.type === 'year') hYear = part.value;
                 });
-                
+
+                // Fallback في حال لم يتم جلب الأرقام
+                if (!hMonth || isNaN(parseInt(hMonth))) {
+                    const fallbackFormatter = new Intl.DateTimeFormat('en-US-u-ca-islamic', {
+                        timeZone: 'Asia/Riyadh',
+                        year: 'numeric',
+                        month: 'numeric',
+                        day: 'numeric'
+                    });
+
+                    const fallbackParts = fallbackFormatter.formatToParts(now);
+                    fallbackParts.forEach(part => {
+                        if (part.type === 'day') hDay = part.value;
+                        if (part.type === 'month') hMonth = part.value;
+                        if (part.type === 'year') hYear = part.value;
+                    });
+                }
+
                 document.getElementById('dateHijri').textContent = `${hDay} / ${hMonth} / ${hYear} هـ`;
-            } catch(e) {
-                document.getElementById('dateHijri').textContent = `--- / --- / --- هـ`;
+            } catch (e) {
+                document.getElementById('dateHijri').textContent = '— / — / — هـ';
             }
-            
+
             // الساعة بنظام 12 ساعة
-            let hours = now.toLocaleString('en-US', { ...options, hour: 'numeric', hour12: true });
+            let hours12 = now.toLocaleString('en-US', { ...options, hour: 'numeric', hour12: true });
             const minutes = pad(now.toLocaleString('en-US', { ...options, minute: 'numeric' }));
             const seconds = pad(now.toLocaleString('en-US', { ...options, second: 'numeric' }));
-            
-            // فصل AM/PM عن الساعة
-            const ampmMatch = hours.match(/(\d+)\s*(AM|PM)/i);
+
+            const ampmMatch = hours12.match(/(\d+)\s*(AM|PM)/i);
             if (ampmMatch) {
-                hours = pad(ampmMatch[1]);           // الساعة فقط (مثال: 09)
-                const ampm = ampmMatch[2];           // AM أو PM
-                document.getElementById('time').textContent = `${hours}:${minutes}:${seconds}`;
-                document.getElementById('ampm').textContent = ampm;
+                hours12 = pad(ampmMatch[1]);
+                document.getElementById('time').textContent = `${hours12}:${minutes}:${seconds}`;
+                document.getElementById('ampm').textContent = ampmMatch[2];
             } else {
-                // حالة احتياطية
-                document.getElementById('time').textContent = `${hours}:${minutes}:${seconds}`;
+                document.getElementById('time').textContent = `${hours12}:${minutes}:${seconds}`;
             }
         }
-        
+
+        // تحديث كل ثانية
         setInterval(updateClock, 1000);
-        updateClock();
+        updateClock(); // التحديث الأولي
     </script>
 </body>
 </html>
