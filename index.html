@@ -3,214 +3,136 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>الساعة والتاريخ - تصميم هادئ</title>
+    <title>V2تاريخ ووقت السعودية</title>
+    <!-- استدعاء خط "تجوال" للنصوص العربية، وخط "JetBrains Mono" للأرقام ليعطي نفس طابع الصورة (أصفار مميزة) -->
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@500;700&family=JetBrains+Mono:wght@200;300;400&display=swap" rel="stylesheet">
+    <!-- مكتبة Tailwind CSS للتصميم -->
+    <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Noto+Sans+Arabic:wght@300;400;600&family=JetBrains+Mono:wght@400&display=swap');
-
-        :root {
-            --bg-color: #0a0a0a;
-            --text-main: #ffffff;
-            --text-dim: #888888;
-            --accent: #ffffff;
-        }
-
         body {
-            margin: 0;
-            padding: 0;
-            height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            background-color: var(--bg-color);
-            color: var(--text-main);
-            font-family: 'Noto Sans Arabic', system-ui, sans-serif;
-            overflow: hidden;
+            background-color: #080808; /* أسود عميق مطابق للصورة */
+            color: #ffffff;
+            font-family: 'Tajawal', sans-serif;
         }
-
-        .container {
-            text-align: center;
-            width: 100%;
-            max-width: 400px;
-            padding: 20px;
-        }
-
-        /* اليوم */
-        .day-section {
-            margin-bottom: 25px;
-        }
-
-        .day-ar {
-            font-size: 1.8rem;
-            font-weight: 600;
-            display: block;
-        }
-
-        .day-en {
-            font-size: 0.9rem;
-            color: var(--text-dim);
-            text-transform: uppercase;
-            letter-spacing: 2px;
-            margin-top: 4px;
-            display: block;
-        }
-
-        /* الساعة */
-        .time-section {
-            margin-bottom: 25px;
-        }
-
-        .time {
-            font-size: 4rem;
-            font-weight: 400;
+        .font-numbers {
             font-family: 'JetBrains Mono', monospace;
-            letter-spacing: -2px;
+            /* خيار لضمان ظهور الأرقام بشكل متساوٍ وواضح */
+            font-variant-numeric: tabular-nums; 
         }
-
-        .ampm {
-            font-size: 1.1rem;
-            color: var(--text-dim);
-            margin-top: 5px;
-            font-weight: 300;
+        .time-text {
+            font-size: 5rem; /* حجم ضخم للساعة */
+            line-height: 1;
+            letter-spacing: 0.05em;
         }
-
-        /* التواريخ */
-        .date-section {
-            border-top: 1px solid rgba(255, 255, 255, 0.1);
-            padding-top: 20px;
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-        }
-
-        .date-miladi {
-            font-size: 1.4rem;
-            font-family: 'JetBrains Mono', monospace;
-            color: var(--text-main);
-        }
-
-        .date-hijri {
-            font-size: 1.2rem;
-            color: var(--text-dim);
-            font-weight: 300;
-        }
-
-        /* تذييل */
-        .footer {
-            position: absolute;
-            bottom: 30px;
-            font-size: 0.75rem;
-            color: rgba(255, 255, 255, 0.3);
-            letter-spacing: 1px;
-        }
-
-        @media (max-width: 350px) {
-            .time { font-size: 3rem; }
-            .day-ar { font-size: 1.5rem; }
+        @media (min-width: 768px) {
+            .time-text {
+                font-size: 6.5rem;
+            }
         }
     </style>
 </head>
-<body>
-    <div class="container">
-        <div class="day-section">
-            <span class="day-ar" id="dayAr"></span>
-            <span class="day-en" id="dayEn"></span>
+<body class="min-h-screen flex flex-col items-center justify-center relative overflow-hidden selection:bg-gray-800">
+
+    <!-- المحتوى الرئيسي -->
+    <div class="flex flex-col items-center justify-center w-full max-w-md px-4 z-10">
+        
+        <!-- اليوم -->
+        <div class="text-center mb-10 flex flex-col items-center">
+            <div id="dayAr" class="text-3xl md:text-4xl font-bold mb-4 text-white">
+                --
+            </div>
+            <div id="dayEn" class="text-xs md:text-sm text-[#737373] tracking-[0.35em] uppercase font-numbers" dir="ltr">
+                --
+            </div>
         </div>
 
-        <div class="time-section">
-            <div class="time" id="time">00:00:00</div>
-            <div class="ampm" id="ampm"></div>
+        <!-- الساعة -->
+        <div class="text-center mb-10 flex flex-col items-center">
+            <div id="time" class="time-text font-numbers font-light text-white mb-5" dir="ltr">
+                00:00:00
+            </div>
+            <div id="ampm" class="text-sm md:text-base text-[#737373] tracking-[0.3em] font-numbers uppercase" dir="ltr">
+                --
+            </div>
         </div>
 
-        <div class="date-section">
-            <div class="date-miladi" id="dateMiladi"></div>
-            <div class="date-hijri" id="dateHijri"></div>
+        <!-- الخط الفاصل -->
+        <div class="w-full max-w-[280px] h-[1px] bg-[#1f1f1f] mb-10"></div>
+
+        <!-- التواريخ -->
+        <div class="text-center space-y-5 flex flex-col items-center">
+            <!-- التاريخ الميلادي -->
+            <div id="dateGregorian" class="text-2xl md:text-3xl font-numbers font-light tracking-[0.15em] text-[#e5e5e5]" dir="ltr">
+                ----/--/--
+            </div>
+            
+            <!-- التاريخ الهجري -->
+            <div class="text-[15px] md:text-base text-[#737373] flex items-center justify-center gap-2">
+                <span class="font-bold text-[#555555] mt-1">هـ</span>
+                <span id="dateHijri" class="font-numbers tracking-[0.15em]" dir="ltr">
+                    ---- / -- / --
+                </span>
+            </div>
         </div>
+
     </div>
 
-    <div class="footer">RIYADH, KSA</div>
+    <!-- تذييل الصفحة (الموقع) -->
+    <div class="absolute bottom-10 text-[10px] md:text-xs text-[#404040] tracking-[0.4em] uppercase font-numbers z-10" dir="ltr">
+        RIYADH, KSA
+    </div>
 
     <script>
-        const daysAr = ["الأحد", "الإثنين", "الثلاثاء", "الأربعاء", "الخميس", "الجمعة", "السبت"];
-        const daysEn = ["Sunday", "Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday"];
-
-        function pad(num) {
-            return num < 10 ? '0' + num : num;
-        }
-
-        function updateClock() {
+        function updateClockAndDate() {
             const now = new Date();
-            const options = { timeZone: 'Asia/Riyadh' };
+            // تحديد المنطقة الزمنية للسعودية لضمان الدقة
+            const timeZone = 'Asia/Riyadh';
 
-            // اليوم
-            const dayIndex = now.getDay();
-            document.getElementById('dayAr').textContent = daysAr[dayIndex];
-            document.getElementById('dayEn').textContent = daysEn[dayIndex];
+            // 1. حساب الوقت
+            const timeParts = new Intl.DateTimeFormat('en-US', { 
+                timeZone, hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true 
+            }).formatToParts(now);
+            
+            const hours = timeParts.find(p => p.type === 'hour').value;
+            const minutes = timeParts.find(p => p.type === 'minute').value;
+            const seconds = timeParts.find(p => p.type === 'second').value;
+            const ampm = timeParts.find(p => p.type === 'dayPeriod').value.toUpperCase();
 
-            // التاريخ الميلادي
-            const year = now.toLocaleString('en-US', { ...options, year: 'numeric' });
-            const month = pad(now.toLocaleString('en-US', { ...options, month: 'numeric' }));
-            const day = pad(now.toLocaleString('en-US', { ...options, day: 'numeric' }));
+            document.getElementById('time').innerText = `${hours}:${minutes}:${seconds}`;
+            document.getElementById('ampm').innerText = ampm;
 
-            document.getElementById('dateMiladi').textContent = `${year}/${month}/${day}`;
+            // 2. اليوم (عربي وإنجليزي)
+            document.getElementById('dayAr').innerText = new Intl.DateTimeFormat('ar-SA', { timeZone, weekday: 'long' }).format(now);
+            document.getElementById('dayEn').innerText = new Intl.DateTimeFormat('en-US', { timeZone, weekday: 'long' }).format(now);
 
-            // التاريخ الهجري - الحل المُحسّن والمستقر
-            try {
-                const hijriFormatter = new Intl.DateTimeFormat('ar-SA-u-ca-islamic-umalqura-nu-latn', {
-                    timeZone: 'Asia/Riyadh',
-                    year: 'numeric',
-                    month: '2-digit',
-                    day: '2-digit'
-                });
+            // 3. التاريخ الميلادي (YYYY/MM/DD)
+            const gregParts = new Intl.DateTimeFormat('en-US', { 
+                timeZone, year: 'numeric', month: '2-digit', day: '2-digit' 
+            }).formatToParts(now);
+            
+            const gYear = gregParts.find(p => p.type === 'year').value;
+            const gMonth = gregParts.find(p => p.type === 'month').value;
+            const gDay = gregParts.find(p => p.type === 'day').value;
+            
+            document.getElementById('dateGregorian').innerText = `${gYear}/${gMonth}/${gDay}`;
 
-                const hijriParts = hijriFormatter.formatToParts(now);
-                let hDay = '', hMonth = '', hYear = '';
-
-                hijriParts.forEach(part => {
-                    if (part.type === 'day') hDay = part.value;
-                    if (part.type === 'month') hMonth = part.value;
-                    if (part.type === 'year') hYear = part.value;
-                });
-
-                // Fallback في حال لم يتم جلب الأرقام
-                if (!hMonth || isNaN(parseInt(hMonth))) {
-                    const fallbackFormatter = new Intl.DateTimeFormat('en-US-u-ca-islamic', {
-                        timeZone: 'Asia/Riyadh',
-                        year: 'numeric',
-                        month: 'numeric',
-                        day: 'numeric'
-                    });
-
-                    const fallbackParts = fallbackFormatter.formatToParts(now);
-                    fallbackParts.forEach(part => {
-                        if (part.type === 'day') hDay = part.value;
-                        if (part.type === 'month') hMonth = part.value;
-                        if (part.type === 'year') hYear = part.value;
-                    });
-                }
-
-                document.getElementById('dateHijri').textContent = `${hDay} / ${hMonth} / ${hYear} هـ`;
-            } catch (e) {
-                document.getElementById('dateHijri').textContent = '— / — / — هـ';
-            }
-
-            // الساعة بنظام 12 ساعة
-            let hours12 = now.toLocaleString('en-US', { ...options, hour: 'numeric', hour12: true });
-            const minutes = pad(now.toLocaleString('en-US', { ...options, minute: 'numeric' }));
-            const seconds = pad(now.toLocaleString('en-US', { ...options, second: 'numeric' }));
-
-            const ampmMatch = hours12.match(/(\d+)\s*(AM|PM)/i);
-            if (ampmMatch) {
-                hours12 = pad(ampmMatch[1]);
-                document.getElementById('time').textContent = `${hours12}:${minutes}:${seconds}`;
-                document.getElementById('ampm').textContent = ampmMatch[2];
-            } else {
-                document.getElementById('time').textContent = `${hours12}:${minutes}:${seconds}`;
-            }
+            // 4. التاريخ الهجري (YYYY / MM / DD) بتقويم أم القرى الدقيق
+            const hijriParts = new Intl.DateTimeFormat('en-US-u-ca-islamic-umalqura', { 
+                timeZone, year: 'numeric', month: '2-digit', day: '2-digit' 
+            }).formatToParts(now);
+            
+            const hYear = hijriParts.find(p => p.type === 'year').value;
+            const hMonth = hijriParts.find(p => p.type === 'month').value;
+            const hDay = hijriParts.find(p => p.type === 'day').value;
+            
+            document.getElementById('dateHijri').innerText = `${hYear} / ${hMonth} / ${hDay}`;
         }
+
+        // التحديث الفوري عند تحميل الصفحة
+        updateClockAndDate();
 
         // تحديث كل ثانية
-        setInterval(updateClock, 1000);
-        updateClock(); // التحديث الأولي
+        setInterval(updateClockAndDate, 1000);
     </script>
 </body>
 </html>
